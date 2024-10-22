@@ -1,22 +1,23 @@
 from typing import List
 from threading import Lock
 
-from tycho_env.utils import GenericMessageSubscriber, print_and_cr, numpify
+from tycho_demo.utils import GenericMessageSubscriber, numpify
+from tycho_demo.state import State
 
 
-def record_topic(state, topic: str):
+def record_topic(state: State, topic: str):
     def callback(msg):
         try:
             value = numpify(msg)
             with state.rostopic_mutex:
                 state.latest_ros_data[topic] = value
         except Exception as e:
-            print_and_cr(f"ERROR: {str(e)}")
+            print(f"ERROR: {str(e)}")
     sub = GenericMessageSubscriber(topic, callback, queue_size=10)
     state.topic_subs[topic] = sub
 
 
-def add_ros_subscribe_function(state, recorded_topics: List[str]):
+def add_ros_subscribe_function(state: State, recorded_topics: List[str]):
     state.topic_subs = {}
     state.rostopic_mutex = Lock()
     state.latest_ros_data = {}
@@ -28,6 +29,6 @@ def add_ros_subscribe_function(state, recorded_topics: List[str]):
             record_topic(state, topic)
 
 
-def pre_cmd_hook(state):
+def pre_cmd_hook(state: State):
     with state.rostopic_mutex:
         state.info.update(state.latest_ros_data)
