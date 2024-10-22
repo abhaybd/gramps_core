@@ -9,14 +9,8 @@
 #    Command Joint 0 at a constant velocity. Require pressing swing/step first.
 ###########################################################
 
-from tycho_env.utils import CHOPSTICK_CLOSE, CHOPSTICK_OPEN, print_and_cr
 import numpy as np
 from time import time
-
-OPEN_LIMIT = CHOPSTICK_OPEN - 0.02
-CLOSE_LIMIT =  CHOPSTICK_CLOSE + 0.02
-CHOP_MIDDLE = (OPEN_LIMIT + CLOSE_LIMIT) / 2
-CHOP_RANGE = (OPEN_LIMIT - CLOSE_LIMIT ) / 2
 
 TUNING_MODES = {'step', 'swing', 'swing_vel'}
 
@@ -39,17 +33,17 @@ def add_tuning_function(state):
 def _rotate_base(key, state):
   state.lock()
   if state.mode == 'swing' or state.mode == 'step':
-    print_and_cr('Entering determine base plane mode')
+    print('Entering determine base plane mode')
     state.tuning_start_time = time()
     assert(all(np.isclose(state.fix_position, np.array(state.current_position), atol=0.3)))
     state.base_vel = 0.3 if state.current_position[0] < np.pi else -0.3
     state.mode = 'rotate'
   else:
-    print_and_cr('To rotate the base, first enter swing/step mode.')
+    print('To rotate the base, first enter swing/step mode.')
   state.unlock()
 
 def _fix(key, state):
-  print_and_cr('Entering tuning mode')
+  print('Entering tuning mode')
   state.lock()
   state.fix_position = np.array(state.current_position)
   state.command_smoother.reset()
@@ -60,7 +54,7 @@ def _fix(key, state):
   elif key == 's':
     state.mode = 'step'
   else:
-    print_and_cr(f"Unrecognized key: {key}")
+    print(f"Unrecognized key: {key}")
     return
   state.tuning_joint = None
   state.unlock()
@@ -79,20 +73,12 @@ def _select_tuning_joint(key, state):
 def __swing(state, cur_time):
   position = state.fix_position.copy()
   if state.tuning_joint is not None:
-    if state.tuning_joint == 6:
-      close_limit = CHOPSTICK_CLOSE + 0.02
-      open_limit = CHOPSTICK_OPEN - 0.02
-      position[state.tuning_joint] = CHOP_MIDDLE
-      position[state.tuning_joint] += CHOP_RANGE * \
-        np.sin(cur_time - state.tuning_start_time)
-    else:
-      position[state.tuning_joint] += np.pi * 0.2 * \
-        np.sin(cur_time - state.tuning_start_time)
-  return position, [None] * 7
+    position[state.tuning_joint] += np.pi * 0.2 * np.sin(cur_time - state.tuning_start_time)
+  return position
 
 def __swing_vel(state, cur_time):
   if state.tuning_joint is None:
-    return state.fix_position, [None] * 7
+    return state.fix_position
   else:
     amplitude = 0.2 * np.pi
     elapsed = cur_time - state.tuning_start_time
@@ -106,17 +92,12 @@ def __swing_vel(state, cur_time):
 def __step(state, cur_time):
   if state.tuning_joint is not None:
     global STEP_SIZE
-    if state.tuning_joint == 6:
-      target = min(state.fix_position[state.tuning_joint] + STEP_SIZE, OPEN_LIMIT)
-      target = max(CLOSE_LIMIT, target)
-      state.fix_position[state.tuning_joint] = target
-    else:
-      state.fix_position[state.tuning_joint] += STEP_SIZE
+    state.fix_position[state.tuning_joint] += STEP_SIZE
     STEP_SIZE = -STEP_SIZE
     state.tuning_joint = None
-  return state.fix_position, [None] * 7
+  return state.fix_position
 
 def __rotate(state, cur_time):
   position = state.fix_position.copy()
   position[0] += (cur_time - state.tuning_start_time) * state.base_vel
-  return position, [None] * 7
+  return position

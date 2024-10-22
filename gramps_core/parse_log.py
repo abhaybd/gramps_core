@@ -3,7 +3,7 @@ import pickle
 from typing import Any, Dict, List
 import numpy as np
 
-from tycho_demo.utils import read_raw_log
+from gramps_core.utils import read_raw_log
 
 def get_args():
     parser = argparse.ArgumentParser(description="Dump recorded logs into a D4RL-style dataset")

@@ -23,14 +23,12 @@ from .addon import add_snapping_function, add_ros_subscribe_function, add_logger
 # Control loop that sends command to the arm
 #######################################################################
 
-def is_ik_jumping(state, command_pos):
+def is_ik_jumping(state: State, command_pos):
   a = np.array(state.current_position)
   b = np.array(command_pos)
-  threshold = np.array([0.3,0.3,0.5,0.8,0.5,0.5,10])
-  if np.greater(np.abs(a-b), threshold).any():
-    print("IK Jumps \t" +
-                 np.array2string(np.abs(a-b), precision=4, separator=',',
-                                 suppress_small=True))
+  threshold = state.ik_jumping_threshold
+  if np.any(np.abs(a-b) > threshold):
+    print(f"IK Jumps \t{np.array2string(np.abs(a-b), precision=4, separator=',', suppress_small=True)}")
     return True
   return False
 

@@ -8,8 +8,6 @@ from copy import deepcopy
 import time
 from pickle import Pickler
 
-from tycho_env.utils import print_and_cr, colors
-
 # Singletons
 STATE_QUEUE = Queue()
 IS_RECORDING = False # Similar to state.curr_recording but flag for callback
@@ -33,7 +31,7 @@ def add_logger_function(state):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         state.save_record_folder = os.path.join(dir_path, "..", "..", "recording")
     if not os.path.isdir(state.save_record_folder):
-        print_and_cr(f"Creating folder for recordings: {state.save_record_folder}")
+        print(f"Creating folder for recordings: {state.save_record_folder}")
         os.mkdir(state.save_record_folder)
     
     Thread(target=recording_worker, daemon=True).start()
@@ -57,7 +55,7 @@ def _record(_, state):
 
 def _count_recording(_, state):
     n_recordings = len([f for f in os.listdir(state.save_record_folder) if f.endswith(".pkl")])
-    print_and_cr(f"Number of recordings: {n_recordings}")
+    print(f"Number of recordings: {n_recordings}")
 
 def _delete_recording(_, state):
     delete_last_recording(state)
@@ -66,7 +64,7 @@ def delete_last_recording(state):
     if state.curr_recording:
         stop_recording(state)
     if state.last_recording:
-        print_and_cr(colors.bg.red + 'Deleting last recording' + colors.reset)
+        print('Deleting last recording')
         os.remove(state.last_recording)
         state.last_recording = None
 
@@ -79,7 +77,7 @@ def start_recording(state):
         stop_recording(state)
     record_path = os.path.join(state.save_record_folder,
                                time.strftime('%y-%m-%d-%H-%M-%S.pkl', time.localtime()))
-    print_and_cr(colors.bg.green + f"Recording to: {record_path}")
+    print(f"Recording to: {record_path}")
 
     global CURR_WRITER, IS_RECORDING, CURR_FILE
     assert STATE_QUEUE.empty()
@@ -92,7 +90,7 @@ def start_recording(state):
 
 def stop_recording(state):
     if state.curr_recording:
-        print_and_cr(colors.bg.lightgrey + "Stop recording" + colors.reset)
+        print("Stop recording")
 
         global IS_RECORDING, CURR_WRITER, CURR_FILE
         IS_RECORDING = False

@@ -33,8 +33,9 @@ class State(object):
     self.ee_pose = arm.fk(self.current_position)
     self.cmd_pose = self.ee_pose
 
-    self.cmd_smoother = WindowSmoother(arm.n_joints, 30)
-    self.joint_smoother = IIRFilter(np.array([1., 0.75, 0.4, 0.2, 1., 0.2, 1.]))
+    self.cmd_smoother = WindowSmoother(arm.n_joints, config["cmd_smoothing_window"])
+    self.joint_smoother = IIRFilter(np.array(config["joint_smoothing_alpha"]))
+    self.ik_jumping_threshold = np.array(config["ik_jumping_threshold"])
 
     # For threading safety
     self.lock = Lock()
