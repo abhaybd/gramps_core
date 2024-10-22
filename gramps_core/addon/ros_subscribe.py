@@ -1,8 +1,8 @@
 from typing import List
 from threading import Lock
 
-from tycho_demo.utils import GenericMessageSubscriber, numpify
-from tycho_demo.state import State
+from gramps_core.utils import GenericMessageSubscriber, numpify
+from gramps_core.state import State
 
 
 def record_topic(state: State, topic: str):

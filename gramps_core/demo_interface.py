@@ -1,5 +1,4 @@
 import sys
-from typing import Callable, List, Dict
 # Enable the conda python interpreter to access ROS packages
 # Even if ROS installs the packages to the system python
 sys.path.append("/usr/lib/python3/dist-packages")
@@ -16,8 +15,8 @@ import rospy
 # Local
 from .ros_arm_container import ROSArmContainer
 from .state import State
-from tycho_demo.keyboard import getch
-from tycho_demo.addon import add_snapping_function, add_ros_subscribe_function, add_logger_function
+from .keyboard import getch
+from .addon import add_snapping_function, add_ros_subscribe_function, add_logger_function
 
 
 #######################################################################
