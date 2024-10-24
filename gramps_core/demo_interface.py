@@ -126,7 +126,7 @@ def __idle(state, curr_time):
 
 def run_demo(config: dict, cmd_freq: int, callback_func=None, cli_params=None, recorded_topics=[]):
   cli_params = cli_params or {}
-  arm = ROSArmContainer(config["ee_link_name"], config["arm_controller_topic"])
+  arm = ROSArmContainer(config["ee_link_name"], config["arm_controller_ns"])
   state = State(config, arm, cmd_freq, cli_params)
 
   # Basic demo functions

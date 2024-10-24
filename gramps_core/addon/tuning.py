@@ -20,9 +20,8 @@ STEP_SIZE = 0.1
 def add_tuning_function(state):
   state.handlers['x'] = state.handlers['s'] = _fix
   state.handlers['X'] = _fix
-  state.handlers['0'] = state.handlers['1'] = state.handlers['2'] = \
-    state.handlers['3'] = state.handlers['4'] = state.handlers['5'] = \
-    state.handlers['6'] = state.handlers['7'] = _select_tuning_joint
+  for i in range(state.arm.n_joints):
+    state.handlers[str(i)] = _select_tuning_joint
   state.modes['step'] = __step
   state.modes['swing'] = __swing
   state.modes['swing_vel'] = __swing_vel

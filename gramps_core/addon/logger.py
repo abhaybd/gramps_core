@@ -8,6 +8,8 @@ from copy import deepcopy
 import time
 from pickle import Pickler
 
+from gramps_core.state import State
+
 # Singletons
 STATE_QUEUE = Queue()
 IS_RECORDING = False # Similar to state.curr_recording but flag for callback
@@ -15,7 +17,7 @@ WRITER_LOCK = Lock()
 CURR_WRITER: Optional[Pickler] = None
 CURR_FILE: Optional[TextIOWrapper] = None
 
-def add_logger_function(state):
+def add_logger_function(state: State):
     state.handlers['r'] = _record
     state.handlers['R'] = _count_recording
     state.handlers['D'] = _delete_recording
@@ -25,8 +27,8 @@ def add_logger_function(state):
     state.last_recording = None
     state.curr_recording = None
 
-    if "save_record_folder" in state.params:
-        state.save_record_folder = state.params["save_record_folder"]
+    if "save_record_folder" in state.cli_params:
+        state.save_record_folder = state.cli_params["save_record_folder"]
     else:
         dir_path = os.path.dirname(os.path.realpath(__file__))
         state.save_record_folder = os.path.join(dir_path, "..", "..", "recording")
